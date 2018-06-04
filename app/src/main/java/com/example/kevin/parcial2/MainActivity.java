@@ -3,6 +3,7 @@ package com.example.kevin.parcial2;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -13,8 +14,21 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.kevin.parcial2.GameNewsAPI.NewsService;
+import com.example.kevin.parcial2.Models.News;
+
+import java.util.ArrayList;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private Retrofit retrofit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +54,48 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        retrofit = new Retrofit.Builder()
+                .baseUrl("https://gamenewsuca.herokuapp.com/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        populateNews();
+
+    }
+
+    private void populateNews() {
+        NewsService service = retrofit.create(NewsService.class);
+        final Call<ArrayList<News>> newsResponseCall = service.getNewsList("Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1YjBmZmNjYWM4NDcxYTAwMjAxNGMzMGEiLCJpYXQiOjE1MjgwNzQ5ODMsImV4cCI6MTUyOTI4NDU4M30.jWgzv4UuYpFf4rG5vvAbZOHoJd6_zMqGMfhkOglDCgM");
+
+        newsResponseCall.enqueue(new Callback<ArrayList<News>>() {
+            @Override
+            public void onResponse(Call<ArrayList<News>> call, Response<ArrayList<News>> response) {
+
+                if(response.isSuccessful()){
+
+                    ArrayList<News> newsResponse = response.body();
+                    //ArrayList<News> newsList = newsResponse.getResults();
+
+                    //listaPokemonAdapter.adicionarListaPokemon(listaPokemon);
+
+                    for(int i = 0; i < newsResponse.size() ; i++){
+                        News n = newsResponse.get(i);
+                        Log.i("FUCKING NEWS", "Noticia: " + n.getGame());
+                    }
+
+                } else {
+
+                    Log.e("No funcion� la mierda", "onResponse: "+ response.errorBody());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<News>> call, Throwable t) {
+                //aptoParaCargar = true;
+                Log.e("NO", "onFailure: "+ t.getMessage());
+            }
+        });
     }
 
     @Override
@@ -80,17 +136,15 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_news) {
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_games) {
 
         } else if (id == R.id.nav_manage) {
 
-        } else if (id == R.id.nav_share) {
+        } else if (id == R.id.nav_settings) {
 
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_favorites) {
 
         }
 
