@@ -1,11 +1,12 @@
 package com.example.kevin.parcial2.DAOs;
 
+import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 
-import com.example.kevin.parcial2.Models.News;
+import com.example.kevin.parcial2.Entities.News;
 
 import java.util.List;
 
@@ -13,12 +14,12 @@ import java.util.List;
 public interface NewsDao {
 
     @Query("SELECT * FROM news")
-    List<News> getAll();
+    LiveData<List<News>> getAllNews();
 
     @Insert
-    void insertAll(News ... news);
+    void insert(News news);
 
-    @Delete
-    void delete(News news);
+    @Query("DELETE FROM news")
+    void deleteAll();
 
 }

@@ -1,6 +1,6 @@
 package com.example.kevin.parcial2.GameNewsAPI;
 
-import com.example.kevin.parcial2.Models.News;
+import com.example.kevin.parcial2.Entities.News;
 
 import java.util.ArrayList;
 

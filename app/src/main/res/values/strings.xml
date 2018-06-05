@@ -12,4 +12,8 @@
     <string name="games">Games</string>
     <string name="favorites">Favorites</string>
 
+    <string name="hint_word">Game...</string>
+    <string name="button_save">Save</string>
+    <string name="empty_not_saved">News not saved because it is empty.</string>
+
 </resources>

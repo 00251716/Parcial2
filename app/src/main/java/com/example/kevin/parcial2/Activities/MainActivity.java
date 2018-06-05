@@ -1,8 +1,14 @@
-package com.example.kevin.parcial2;
+package com.example.kevin.parcial2.Activities;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -13,11 +19,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import com.example.kevin.parcial2.Adapters.NewsListAdapter;
 import com.example.kevin.parcial2.GameNewsAPI.NewsService;
-import com.example.kevin.parcial2.Models.News;
+import com.example.kevin.parcial2.Entities.News;
+import com.example.kevin.parcial2.R;
+import com.example.kevin.parcial2.ViewModels.NewsViewModel;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -29,8 +40,10 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private Retrofit retrofit;
-    //access to de database
-    private com.example.kevin.parcial2.DBUtils.AppRoomDatabase mDb;
+
+    public static final int NEW_NEWS_ACTIVITY_REQUEST_CODE = 1;
+
+    private NewsViewModel mNewsViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,12 +52,36 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        //---------- Cosas del RecyclerView -----------
+        RecyclerView recyclerView = findViewById(R.id.recyclerview);
+        final NewsListAdapter adapter = new NewsListAdapter(this);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        //---------- Cosas del RecyclerView -----------
+
+        // ---------------- Cosas del ViewModel --------------
+        mNewsViewModel = ViewModelProviders.of(this).get(NewsViewModel.class);
+        // ---------------- Cosas del ViewModel --------------
+
+
+        // ------------------ Aqui se añade el observer --------------
+        mNewsViewModel.getAllNews().observe(this, new Observer<List<News>>() {
+            @Override
+            public void onChanged(@Nullable List<News> news) {
+                adapter.setNews(news);
+            }
+        });
+
+        // ------------------ Aqui se añade el observer --------------
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+                Intent intent = new Intent(MainActivity.this, NewNewsActivity.class);
+                startActivityForResult(intent, NEW_NEWS_ACTIVITY_REQUEST_CODE);
             }
         });
 
@@ -64,7 +101,6 @@ public class MainActivity extends AppCompatActivity
 
         populateNews();
 
-        mDb = com.example.kevin.parcial2.DBUtils.AppRoomDatabase.getDatabase(getApplicationContext());
     }
 
     private void populateNews() {
@@ -155,4 +191,19 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == NEW_NEWS_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
+            News news = new News(data.getStringExtra(NewNewsActivity.EXTRA_REPLY));
+            mNewsViewModel.insert(news);
+        } else {
+            Toast.makeText(
+                    getApplicationContext(),
+                    R.string.empty_not_saved,
+                    Toast.LENGTH_LONG).show();
+        }
+    }
+
 }

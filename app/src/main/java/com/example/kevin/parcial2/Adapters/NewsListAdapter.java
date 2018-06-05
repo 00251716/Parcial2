@@ -1,96 +1,64 @@
 package com.example.kevin.parcial2.Adapters;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.example.kevin.parcial2.Models.News;
+import com.example.kevin.parcial2.Entities.News;
 import com.example.kevin.parcial2.R;
 
-import java.util.ArrayList;
+import java.util.List;
 
-public class NewsListAdapter   {
+public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.NewsViewHolder>  {
 
-    /*extends RecyclerView.Adapter<NewsListAdapter.MyViewHolder>
-    Context mContext;
-    ArrayList<News> mData;
-    ArrayList<News> itemsCopy = new ArrayList<>();
+    class NewsViewHolder extends RecyclerView.ViewHolder {
+        private final TextView wordItemView;
 
-    public NewsListAdapter(Context mContext, ArrayList<News> mData){
-        this.mContext = mContext;
-        this.mData = mData;
-        //itemsCopy.addAll(DBHelper.ourInstance.getCurrentList());
-    }
-
-    public NewsListAdapter(){
-
-    }
-
-    @Override
-    public int getItemCount() {
-        return mData.size();
-    }
-
-    @NonNull
-    @Override
-    public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v;
-        v = LayoutInflater.from(mContext).inflate(R.layout.news_item, parent, false);
-        final MyViewHolder vHolder = new MyViewHolder(v);
-
-        return vHolder;
-    }
-
-    @Override
-    public void onBindViewHolder(MyViewHolder holder, int position) {
-        holder.textViewCarnet.setText(mData.get(position).getCarnet());
-        holder.textViewNota.setText(mData.get(position).getNota());
-        holder.textViewMateria.setText(mData.get(position).getMateria());
-        holder.textViewDocente.setText(mData.get(position).getDocente());
-    }
-
-    public static class MyViewHolder extends RecyclerView.ViewHolder{
-
-        private LinearLayout registroItem;
-        private TextView textViewCarnet;
-        private TextView textViewNota;
-        private TextView textViewMateria;
-        private TextView textViewDocente;
-
-        public MyViewHolder(View itemView) {
+        private NewsViewHolder(View itemView) {
             super(itemView);
-
-            registroItem = itemView.findViewById(R.id.registroItemLayout);
-            textViewCarnet = itemView.findViewById(R.id.textViewCarnet);
-            textViewNota = itemView.findViewById(R.id.textViewNota);
-            textViewMateria = itemView.findViewById(R.id.textViewMateria);
-            textViewDocente = itemView.findViewById(R.id.textViewDocente);
-
+            wordItemView = itemView.findViewById(R.id.textView);
         }
     }
 
-    //Este método sirve para filtrar resultados del buscador
-    public void filter(String text) {
-        mData.clear();
-        if(text.isEmpty()){
-            mData.addAll(itemsCopy);
+    private final LayoutInflater mInflater;
+    private List<News> mNews;
+
+    public NewsListAdapter(Context context) { mInflater = LayoutInflater.from(context); }
+
+    @Override
+    public NewsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View itemView = mInflater.inflate(R.layout.recyclerview_item, parent, false);
+        return new NewsViewHolder(itemView);
+    }
+
+    @Override
+    public void onBindViewHolder(NewsViewHolder holder, int position) {
+        if (mNews != null) {
+            News current = mNews.get(position);
+            holder.wordItemView.setText(current.getGame());  //Vamos a probar esta vaina poniendo solo el juego
         } else {
-            text = text.toLowerCase();
-            for(Registro r : itemsCopy) {
-                if(r.getCarnet().contains(text)) mData.add(r);
-            }
+            // Covers the case of data not being ready yet.
+            holder.wordItemView.setText("No Word");
         }
+    }
+
+    public void setNews(List<News> news){
+        mNews = news;
         notifyDataSetChanged();
     }
 
-    public ArrayList<Registro> getOriginal(){
-        return itemsCopy;
+    // getItemCount() is called many times, and when it is first called,
+    // mWords has not been updated (means initially, it's null, and we can't return null).
+    @Override
+    public int getItemCount() {
+        if (mNews != null)
+            return mNews.size();
+        else return 0;
     }
 
-*/
+
+
 }

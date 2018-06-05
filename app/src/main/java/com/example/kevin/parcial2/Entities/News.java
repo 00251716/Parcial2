@@ -1,4 +1,4 @@
-package com.example.kevin.parcial2.Models;
+package com.example.kevin.parcial2.Entities;
 
 //Esta clase sirve para almacenar la informaci�n de una noticia
 
@@ -30,6 +30,10 @@ public class News {
 
     @ColumnInfo(name="_V")
     private int _V;
+
+    public News(String game) {
+        this.game = game;
+    }
 
     public String getId() {
         return id;
@@ -82,4 +86,6 @@ public class News {
     public int get_V() { return _V; }
 
     public void set_V(int v) { this._V = v; }
+
+
 }
