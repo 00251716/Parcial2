@@ -2,14 +2,33 @@ package com.example.kevin.parcial2.Models;
 
 //Esta clase sirve para almacenar la informaci�n de una noticia
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
+
+@Entity
 public class News {
 
-    private String id;
+    @android.support.annotation.NonNull
+    @PrimaryKey
+    private String id = "default";
+
+    @ColumnInfo(name = "title")
     private String title;
+
+    @ColumnInfo(name="body")
     private String body;
+
+    @ColumnInfo(name="game")
     private String game;
+
+    @ColumnInfo(name="cover_image")
     private String coverImage;
+
+    @ColumnInfo(name="created_date")
     private String created_date;
+
+    @ColumnInfo(name="_V")
     private int _V;
 
     public String getId() {
@@ -59,4 +78,8 @@ public class News {
     public void setCreated_date(String created_date) {
         this.created_date = created_date;
     }
+
+    public int get_V() { return _V; }
+
+    public void set_V(int v) { this._V = v; }
 }

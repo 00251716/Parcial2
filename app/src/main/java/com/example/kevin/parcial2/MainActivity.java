@@ -29,6 +29,8 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private Retrofit retrofit;
+    //access to de database
+    private com.example.kevin.parcial2.DBUtils.AppRoomDatabase mDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +64,7 @@ public class MainActivity extends AppCompatActivity
 
         populateNews();
 
+        mDb = com.example.kevin.parcial2.DBUtils.AppRoomDatabase.getDatabase(getApplicationContext());
     }
 
     private void populateNews() {
