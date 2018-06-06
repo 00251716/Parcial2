@@ -14,6 +14,7 @@ public class NewNewsActivity extends AppCompatActivity {
 
     public static final String EXTRA_REPLY = "com.example.android.wordlistsql.REPLY";
 
+
     private EditText mEditWordView;
 
     @Override
@@ -36,6 +37,9 @@ public class NewNewsActivity extends AppCompatActivity {
                 finish();
             }
         });
+
     }
+
+
 
 }

@@ -4,7 +4,7 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 
-import com.example.kevin.parcial2.DBUtils.NewsRepository;
+import com.example.kevin.parcial2.Persistence.NewsRepository;
 import com.example.kevin.parcial2.Entities.News;
 
 import java.util.List;
@@ -32,6 +32,11 @@ public class NewsViewModel extends AndroidViewModel {
         mRepository.insert(news);
     }
 
+    public void insertAll(List<News> news) {
+
+        for(int i = 0; i<news.size(); i++) mRepository.insert(news.get(i));
+
+    }
 
 
 }

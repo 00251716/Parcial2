@@ -38,7 +38,7 @@ public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.NewsVi
     public void onBindViewHolder(NewsViewHolder holder, int position) {
         if (mNews != null) {
             News current = mNews.get(position);
-            holder.wordItemView.setText(current.getGame());  //Vamos a probar esta vaina poniendo solo el juego
+            holder.wordItemView.setText(current.getTitle());  //Vamos a probar esta vaina poniendo solo el juego
         } else {
             // Covers the case of data not being ready yet.
             holder.wordItemView.setText("No Word");

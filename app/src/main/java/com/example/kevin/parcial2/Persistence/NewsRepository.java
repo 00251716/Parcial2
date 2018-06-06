@@ -1,4 +1,4 @@
-package com.example.kevin.parcial2.DBUtils;
+package com.example.kevin.parcial2.Persistence;
 
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
@@ -41,6 +41,8 @@ public class NewsRepository {
         @Override
         protected Void doInBackground(final News... params) {
             mAsyncTaskDao.insert(params[0]);
+            News news = new News("Some ill shit");
+            mAsyncTaskDao.insert(news);
             return null;
         }
     }

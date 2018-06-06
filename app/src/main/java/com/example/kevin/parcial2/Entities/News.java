@@ -9,9 +9,8 @@ import android.arch.persistence.room.PrimaryKey;
 @Entity
 public class News {
 
-    @android.support.annotation.NonNull
-    @PrimaryKey
-    private String id = "default";
+    @PrimaryKey(autoGenerate = true)
+    private int id;
 
     @ColumnInfo(name = "title")
     private String title;
@@ -35,11 +34,11 @@ public class News {
         this.game = game;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 

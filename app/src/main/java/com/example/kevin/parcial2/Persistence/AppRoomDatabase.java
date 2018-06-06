@@ -1,4 +1,4 @@
-package com.example.kevin.parcial2.DBUtils;
+package com.example.kevin.parcial2.Persistence;
 
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.Database;
@@ -15,6 +15,8 @@ import com.example.kevin.parcial2.Entities.News;
 public abstract class AppRoomDatabase extends RoomDatabase {
 
     public abstract NewsDao newsDao();
+
+
 
     //La instancia que se utilizar�
     private static AppRoomDatabase INSTANCE;
@@ -41,7 +43,7 @@ public abstract class AppRoomDatabase extends RoomDatabase {
     }
 
     private static RoomDatabase.Callback sRoomDatabaseCallback =
-            new RoomDatabase.Callback(){
+                new RoomDatabase.Callback(){
 
                 @Override
                 public void onOpen (@NonNull SupportSQLiteDatabase db){
@@ -50,9 +52,10 @@ public abstract class AppRoomDatabase extends RoomDatabase {
                 }
             };
 
-    private static class PopulateDbAsync extends AsyncTask<Void, Void, Void> {
+    public static class PopulateDbAsync extends AsyncTask<Void, Void, Void> {
 
         private final NewsDao mDao;
+
 
         PopulateDbAsync(AppRoomDatabase db) {
             mDao = db.newsDao();
@@ -61,11 +64,11 @@ public abstract class AppRoomDatabase extends RoomDatabase {
         @Override
         protected Void doInBackground(final Void... params) {
             mDao.deleteAll();
-            News news = new News("Some ill shit");
-            mDao.insert(news);
             return null;
         }
+
     }
+
 
 
 }

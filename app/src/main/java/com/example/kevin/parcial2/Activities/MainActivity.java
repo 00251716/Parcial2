@@ -1,14 +1,11 @@
 package com.example.kevin.parcial2.Activities;
 
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -21,17 +18,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.example.kevin.parcial2.Adapters.NewsListAdapter;
-import com.example.kevin.parcial2.GameNewsAPI.NewsService;
+import com.example.kevin.parcial2.Fragments.ShowNewsFragment;
+import com.example.kevin.parcial2.GameNewsAPI.GamesService;
 import com.example.kevin.parcial2.Entities.News;
 import com.example.kevin.parcial2.R;
 import com.example.kevin.parcial2.ViewModels.NewsViewModel;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -39,11 +34,12 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private Retrofit retrofit;
 
     public static final int NEW_NEWS_ACTIVITY_REQUEST_CODE = 1;
 
     private NewsViewModel mNewsViewModel;
+    static Retrofit retrofit;
+    static String token;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,34 +48,15 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        //---------- Cosas del RecyclerView -----------
-        RecyclerView recyclerView = findViewById(R.id.recyclerview);
-        final NewsListAdapter adapter = new NewsListAdapter(this);
-        recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        //---------- Cosas del RecyclerView -----------
-
         // ---------------- Cosas del ViewModel --------------
         mNewsViewModel = ViewModelProviders.of(this).get(NewsViewModel.class);
         // ---------------- Cosas del ViewModel --------------
 
 
-        // ------------------ Aqui se añade el observer --------------
-        mNewsViewModel.getAllNews().observe(this, new Observer<List<News>>() {
-            @Override
-            public void onChanged(@Nullable List<News> news) {
-                adapter.setNews(news);
-            }
-        });
-
-        // ------------------ Aqui se añade el observer --------------
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show();
                 Intent intent = new Intent(MainActivity.this, NewNewsActivity.class);
                 startActivityForResult(intent, NEW_NEWS_ACTIVITY_REQUEST_CODE);
             }
@@ -94,48 +71,18 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        retrofit = new Retrofit.Builder()
-                .baseUrl("https://gamenewsuca.herokuapp.com/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        populateNews();
-
+        if(savedInstanceState == null){
+            retrofit = new Retrofit.Builder()
+                    .baseUrl("https://gamenewsuca.herokuapp.com/")
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+            populateNews(mNewsViewModel);
+            setFragment(0);
+            token = getIntent().getStringExtra("TOKEN_OBTAINED");
+        }
     }
 
-    private void populateNews() {
-        NewsService service = retrofit.create(NewsService.class);
-        final Call<ArrayList<News>> newsResponseCall = service.getNewsList("Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1YjBmZmNjYWM4NDcxYTAwMjAxNGMzMGEiLCJpYXQiOjE1MjgwNzQ5ODMsImV4cCI6MTUyOTI4NDU4M30.jWgzv4UuYpFf4rG5vvAbZOHoJd6_zMqGMfhkOglDCgM");
 
-        newsResponseCall.enqueue(new Callback<ArrayList<News>>() {
-            @Override
-            public void onResponse(Call<ArrayList<News>> call, Response<ArrayList<News>> response) {
-
-                if(response.isSuccessful()){
-
-                    ArrayList<News> newsResponse = response.body();
-                    //ArrayList<News> newsList = newsResponse.getResults();
-
-                    //listaPokemonAdapter.adicionarListaPokemon(listaPokemon);
-
-                    for(int i = 0; i < newsResponse.size() ; i++){
-                        News n = newsResponse.get(i);
-                        Log.i("FUCKING NEWS", "Noticia: " + n.getGame());
-                    }
-
-                } else {
-
-                    Log.e("No funcion� la mierda", "onResponse: "+ response.errorBody());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ArrayList<News>> call, Throwable t) {
-                //aptoParaCargar = true;
-                Log.e("NO", "onFailure: "+ t.getMessage());
-            }
-        });
-    }
 
     @Override
     public void onBackPressed() {
@@ -204,6 +151,61 @@ public class MainActivity extends AppCompatActivity
                     R.string.empty_not_saved,
                     Toast.LENGTH_LONG).show();
         }
+    }
+
+    //Método para cambiar entre fragmentos de acuerdo a la opción seleccionada en el navigation drawer
+    public void setFragment(int position) {
+        FragmentManager fragmentManager;
+        FragmentTransaction fragmentTransaction;
+
+        switch (position) {
+            case 0:
+                fragmentManager = getSupportFragmentManager();
+                fragmentTransaction = fragmentManager.beginTransaction();
+                ShowNewsFragment showFragment = new ShowNewsFragment();
+                fragmentTransaction.replace(R.id.fragment, showFragment);
+                fragmentTransaction.commit();
+                break;
+
+
+        }
+    }
+
+
+
+    static private void populateNews(final NewsViewModel newsViewModel) {
+        GamesService service = retrofit.create(GamesService.class);
+        final Call<ArrayList<News>> newsResponseCall = service.getNewsList("Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1YjBmZmNjYWM4NDcxYTAwMjAxNGMzMGEiLCJpYXQiOjE1MjgxMzM1NzgsImV4cCI6MTUyOTM0MzE3OH0.QJQmdMoxUh8PBKK6rWtd-SRsXTO6AC1UQ5FweDv0J8Y");
+
+        newsResponseCall.enqueue(new retrofit2.Callback<ArrayList<News>>() {
+            @Override
+            public void onResponse(Call<ArrayList<News>> call, Response<ArrayList<News>> response) {
+
+                if(response.isSuccessful()){
+
+                    ArrayList<News> newsResponse = response.body();
+                    //ArrayList<News> newsList = newsResponse.getResults();
+
+                    //adapter.setNews(newsResponse); est� bueno, pero aqu� solo lo añadis al adapter
+                    newsViewModel.insertAll(newsResponse);
+
+                    for(int i = 0; i < newsResponse.size() ; i++){
+                        News n = newsResponse.get(i);
+                        Log.i("FUCKING NEWS", "Noticia: " + token);
+                    }
+
+                } else {
+
+                    Log.e("No funcion� la mierda", "onResponse: "+ response.errorBody());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<News>> call, Throwable t) {
+                //aptoParaCargar = true;
+                Log.e("NO", "onFailure: "+ t.getMessage());
+            }
+        });
     }
 
 }
