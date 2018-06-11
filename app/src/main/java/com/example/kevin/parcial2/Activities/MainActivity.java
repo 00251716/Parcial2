@@ -16,17 +16,22 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.kevin.parcial2.Entities.User;
 import com.example.kevin.parcial2.Fragments.ShowNewsFragment;
 import com.example.kevin.parcial2.GameNewsAPI.GamesService;
+import com.example.kevin.parcial2.GameNewsAPI.GamesServiceInterface;
 import com.example.kevin.parcial2.Entities.News;
+import com.example.kevin.parcial2.Persistence.SharedData;
 import com.example.kevin.parcial2.R;
 import com.example.kevin.parcial2.ViewModels.NewsViewModel;
 
 import java.util.ArrayList;
 
 import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -38,8 +43,9 @@ public class MainActivity extends AppCompatActivity
     public static final int NEW_NEWS_ACTIVITY_REQUEST_CODE = 1;
 
     private NewsViewModel mNewsViewModel;
-    static Retrofit retrofit;
     static String token;
+    private NavigationView navigationView;
+    private TextView navHeaderUsername;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +53,19 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        SharedData.init(this);
+        token = SharedData.getToken();
+
+        navigationView =  findViewById(R.id.nav_view);
+        navHeaderUsername = navigationView.getHeaderView(0).findViewById(R.id.usernameTextView);
+
+        if (!SharedData.hasUserDetail()) {
+            requestUserDetail();
+        } else {
+            navHeaderUsername.setText(SharedData.getUsername());
+        }
+
 
         // ---------------- Cosas del ViewModel --------------
         mNewsViewModel = ViewModelProviders.of(this).get(NewsViewModel.class);
@@ -71,15 +90,15 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+
         if(savedInstanceState == null){
-            retrofit = new Retrofit.Builder()
-                    .baseUrl("https://gamenewsuca.herokuapp.com/")
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
-            populateNews(mNewsViewModel);
             setFragment(0);
-            token = getIntent().getStringExtra("TOKEN_OBTAINED");
+            //getIntent().getStringExtra("TOKEN_OBTAINED");
         }
+
+
+
+
     }
 
 
@@ -171,39 +190,22 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-
-
-    static private void populateNews(final NewsViewModel newsViewModel) {
-        GamesService service = retrofit.create(GamesService.class);
-        final Call<ArrayList<News>> newsResponseCall = service.getNewsList("Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1YjBmZmNjYWM4NDcxYTAwMjAxNGMzMGEiLCJpYXQiOjE1MjgxMzM1NzgsImV4cCI6MTUyOTM0MzE3OH0.QJQmdMoxUh8PBKK6rWtd-SRsXTO6AC1UQ5FweDv0J8Y");
-
-        newsResponseCall.enqueue(new retrofit2.Callback<ArrayList<News>>() {
+    private void requestUserDetail() {
+        Call<User> userCall = GamesService.getApiServiceWithAuthorization().userDetail();
+        userCall.enqueue(new Callback<User>() {
             @Override
-            public void onResponse(Call<ArrayList<News>> call, Response<ArrayList<News>> response) {
-
-                if(response.isSuccessful()){
-
-                    ArrayList<News> newsResponse = response.body();
-                    //ArrayList<News> newsList = newsResponse.getResults();
-
-                    //adapter.setNews(newsResponse); est� bueno, pero aqu� solo lo añadis al adapter
-                    newsViewModel.insertAll(newsResponse);
-
-                    for(int i = 0; i < newsResponse.size() ; i++){
-                        News n = newsResponse.get(i);
-                        Log.i("FUCKING NEWS", "Noticia: " + token);
-                    }
-
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.isSuccessful() && !response.body().getId().isEmpty()) {
+                    SharedData.setUserDetail(response.body());
+                    navHeaderUsername.setText(response.body().getUser());
                 } else {
-
-                    Log.e("No funcion� la mierda", "onResponse: "+ response.errorBody());
+                    Log.e("USER: ", "onResponse: empty user id");
                 }
             }
 
             @Override
-            public void onFailure(Call<ArrayList<News>> call, Throwable t) {
-                //aptoParaCargar = true;
-                Log.e("NO", "onFailure: "+ t.getMessage());
+            public void onFailure(Call<User> call, Throwable t) {
+                Log.e("USER: ", "onFailure: Cannot load user info. Error message: " + t.getMessage() );
             }
         });
     }

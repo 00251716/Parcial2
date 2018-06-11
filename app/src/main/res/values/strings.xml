@@ -29,5 +29,9 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="error_min_length">%1$s length must be at least %2$d characters</string>
+    <string name="error_login_credentials">Username or password is incorrect.</string>
 
 </resources>
