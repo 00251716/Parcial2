@@ -1,13 +1,18 @@
 package com.example.kevin.parcial2.GameNewsAPI;
 
-import com.example.kevin.parcial2.Persistence.SharedData;
+import android.util.Log;
+
+import com.example.kevin.parcial2.Data.SharedData;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+
+import static android.support.constraint.Constraints.TAG;
 
 public class GamesService {
 
@@ -15,10 +20,17 @@ public class GamesService {
 
     private static String BASE_URL = "http://gamenewsuca.herokuapp.com";
 
-    public static GamesServiceInterface getApiService(Gson gson) {
+    public static GamesServiceInterface getApiService() {
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(logging).build();
+        Log.d(TAG, "getApiService: " + client.interceptors().size());
+
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create(gson))
+                .client(client)
+                .addConverterFactory(GsonConverterFactory.create())
                 .build();
         API_SERVICE = retrofit.create(GamesServiceInterface.class);
         return API_SERVICE;

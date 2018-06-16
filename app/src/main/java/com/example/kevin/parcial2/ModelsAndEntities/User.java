@@ -1,4 +1,4 @@
-package com.example.kevin.parcial2.Entities;
+package com.example.kevin.parcial2.ModelsAndEntities;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;

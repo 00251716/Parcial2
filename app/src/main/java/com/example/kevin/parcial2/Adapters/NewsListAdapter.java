@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.kevin.parcial2.Entities.News;
+import com.example.kevin.parcial2.ModelsAndEntities.News;
 import com.example.kevin.parcial2.R;
 
 import java.util.List;
@@ -23,14 +23,19 @@ public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.NewsVi
         }
     }
 
-    private final LayoutInflater mInflater;
     private List<News> mNews;
+    private Context context;
 
-    public NewsListAdapter(Context context) { mInflater = LayoutInflater.from(context); }
+
+    public NewsListAdapter (Context context, List<News> newsArray) {
+        this.context = context;
+        this.mNews = newsArray;
+    }
+
 
     @Override
     public NewsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = mInflater.inflate(R.layout.recyclerview_item, parent, false);
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.recyclerview_item, parent, false);
         return new NewsViewHolder(itemView);
     }
 

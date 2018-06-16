@@ -1,6 +1,5 @@
 package com.example.kevin.parcial2.Activities;
 
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -19,22 +18,17 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.kevin.parcial2.Entities.User;
+import com.example.kevin.parcial2.ModelsAndEntities.User;
 import com.example.kevin.parcial2.Fragments.ShowNewsFragment;
 import com.example.kevin.parcial2.GameNewsAPI.GamesService;
-import com.example.kevin.parcial2.GameNewsAPI.GamesServiceInterface;
-import com.example.kevin.parcial2.Entities.News;
-import com.example.kevin.parcial2.Persistence.SharedData;
+import com.example.kevin.parcial2.ModelsAndEntities.News;
+import com.example.kevin.parcial2.Data.SharedData;
 import com.example.kevin.parcial2.R;
 import com.example.kevin.parcial2.ViewModels.NewsViewModel;
-
-import java.util.ArrayList;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -66,10 +60,6 @@ public class MainActivity extends AppCompatActivity
             navHeaderUsername.setText(SharedData.getUsername());
         }
 
-
-        // ---------------- Cosas del ViewModel --------------
-        mNewsViewModel = ViewModelProviders.of(this).get(NewsViewModel.class);
-        // ---------------- Cosas del ViewModel --------------
 
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);

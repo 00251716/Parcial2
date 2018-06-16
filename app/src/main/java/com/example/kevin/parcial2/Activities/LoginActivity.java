@@ -1,84 +1,65 @@
 package com.example.kevin.parcial2.Activities;
-
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
-import android.app.ProgressDialog;
+;
 import android.content.Intent;
+import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.app.LoaderManager.LoaderCallbacks;
 
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
-
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.support.v7.widget.AppCompatEditText;
-import android.text.TextUtils;
-import android.view.KeyEvent;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.kevin.parcial2.GameNewsAPI.GamesService;
-import com.example.kevin.parcial2.GameNewsAPI.GamesServiceInterface;
-import com.example.kevin.parcial2.Persistence.SharedData;
+import com.example.kevin.parcial2.Data.SharedData;
+import com.example.kevin.parcial2.ModelsAndEntities.Login;
 import com.example.kevin.parcial2.R;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
 
-import java.lang.reflect.Type;
+
+import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.util.ArrayList;
-import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
+//Esta actividad controla el login
 
-/**
- * A login screen that offers login via email/password.
- */
 public class LoginActivity extends AppCompatActivity{
 
     private static final String TAG = LoginActivity.class.getSimpleName();
 
+    //El nombre del usuario
     private EditText mEditUsername;
+
+    //La contraseña del usuario
     private EditText mEditPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
         setContentView(R.layout.activity_login);
 
         SharedData.init(this);
+        //Verificamos si el usuario ya est� logeado
         if (SharedData.isLoggedIn()) {
             startActivity(new Intent(this, MainActivity.class));
             finish();
         }
 
-        mEditUsername = findViewById(R.id.email);
+        //Referencia al EditText donde el usuario ingresa su username
+        mEditUsername = findViewById(R.id.username);
+
+        //Referencia al EditText donde el usuario ingresa su password
         mEditPassword = findViewById(R.id.password);
 
-        Button btnLogIn = findViewById(R.id.email_sign_in_button);
+        //Referencia al bot�n para iniciar sesi�n
+        Button btnLogIn = findViewById(R.id.log_in_button);
+
+        //Asign�ndole un Listener al bot�n
         btnLogIn.setOnClickListener(v -> buttonClicked());
     }
 
@@ -92,11 +73,11 @@ public class LoginActivity extends AppCompatActivity{
         mEditUsername.setError(null);
         mEditPassword.setError(null);
         if (mEditUsername.getText().toString().trim().length() < 4) {
-            mEditUsername.setError(String.format(getString(R.string.error_min_length),getString(R.string.username), 4));
+            mEditUsername.setError( getString(R.string.error_min_length));
             mEditUsername.requestFocus();
             return false;
         } else if(mEditPassword.getText().toString().trim().length() < 4) {
-            mEditPassword.setError(String.format(getString(R.string.error_min_length),getString(R.string.password), 4));
+            mEditPassword.setError(getString(R.string.error_min_length));
             mEditPassword.requestFocus();
             return false;
         } else {
@@ -107,57 +88,43 @@ public class LoginActivity extends AppCompatActivity{
     private void startLogin() {
         String username = mEditUsername.getText().toString().trim();
         String password = mEditPassword.getText().toString().trim();
-        Gson gson = new GsonBuilder().registerTypeAdapter(String.class, new TokenDeserializer()).create();
-        Call<String> loginCall = GamesService.getApiService(gson).login(username, password);
-        final ProgressDialog progressDialog;
-        progressDialog = new ProgressDialog(LoginActivity.this);
-        progressDialog.setMax(100);
-        progressDialog.setProgressStyle(R.style.AppTheme_NoActionBar);
-        progressDialog.setMessage("Authenticating...");
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressDialog.show();
-
-        loginCall.enqueue(new Callback<String>() {
+        Call<Login> loginCall = GamesService.getApiService().token(username, password);
+        loginCall.enqueue(new Callback<Login>() {
             @Override
-            public void onResponse(Call<String> call, Response<String> response) {
-                String[] values = response.body().split(":");
-                if (response.isSuccessful() && values[0].equals("token")) {
-                    progressDialog.dismiss();
+            public void onResponse(@NonNull Call<Login> call, @NonNull Response<Login> response) {
+                if (response.isSuccessful() && !response.body().getToken().isEmpty()) {
                     SharedData.init(LoginActivity.this);
-                    SharedData.setToken(values[1]);
+                    SharedData.setToken(response.body().getToken());
                     startActivity(new Intent(LoginActivity.this, MainActivity.class));
                     finish();
                 } else {
-                    progressDialog.dismiss();
-                    Toast.makeText(LoginActivity.this, values[1], Toast.LENGTH_SHORT).show();
+                    try {
+                        Gson gson = new Gson();
+                        Login error = gson.fromJson(response.errorBody().string(), Login.class);
+                        //MessagesUtils.showErrorDialog(LoginActivity.this,error.getMessage(), null);
+                        Snackbar.make(findViewById(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG)
+                                .show();
+                    } catch (IOException e) {
+                        Log.d(TAG, "onResponse: " + e.getMessage());
+                    }
                 }
             }
 
             @Override
-            public void onFailure(Call<String> call, Throwable t) {
-                progressDialog.dismiss();
-                t.printStackTrace();
+            public void onFailure(@NonNull Call<Login> call, @NonNull Throwable t) {
                 if (t instanceof SocketTimeoutException) {
-                    Toast.makeText(LoginActivity.this, "Timed out.", Toast.LENGTH_SHORT).show();
+                    //MessagesUtils.showErrorDialog(LoginActivity.this,getString(R.string.error_timed_out), null);
+                    Snackbar.make(findViewById(android.R.id.content), getString(R.string.error_timed_out), Snackbar.LENGTH_LONG)
+                            .show();
+                } else if (t instanceof IOException) {
+                    //MessagesUtils.showErrorDialog(LoginActivity.this, getString(R.string.error_no_internet), null);
+                    Snackbar.make(findViewById(android.R.id.content), getString(R.string.error_no_internet), Snackbar.LENGTH_LONG)
+                            .show();
+                } else {
+                    Log.e(TAG, "onFailure: " + t.getMessage());
                 }
             }
         });
-    }
-
-
-    public class TokenDeserializer implements JsonDeserializer<String> {
-        @Override
-        public String deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-            String token = "";
-
-            JsonObject tokenJson = json.getAsJsonObject();
-            if (tokenJson != null) {
-                if (tokenJson.has("token")) token = "token:" + tokenJson.get("token").getAsString();
-                else token = "message:" + tokenJson.get("message").getAsString();
-            }
-
-            return token;
-        }
     }
 
 

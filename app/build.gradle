@@ -33,6 +33,7 @@ dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.1.0'
 
     implementation 'com.squareup.retrofit2:retrofit:2.1.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.10.0'
 
     //Esta dependencia nos permite convertir lo que devuelve la API a objetos
     implementation 'com.squareup.retrofit2:converter-gson:2.1.0'
@@ -56,4 +57,7 @@ dependencies {
     implementation 'android.arch.lifecycle:extensions:1.1.1'
     implementation 'android.arch.lifecycle:viewmodel:1.1.1'
     //    End of room dependencies
+
+    def firebase_version = "0.8.5"
+    implementation "com.firebase:firebase-jobdispatcher:$firebase_version"
 }

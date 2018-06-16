@@ -1,4 +1,4 @@
-package com.example.kevin.parcial2.Persistence;
+package com.example.kevin.parcial2.Data;
 
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.Database;
@@ -9,7 +9,7 @@ import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 
 import com.example.kevin.parcial2.DAOs.NewsDao;
-import com.example.kevin.parcial2.Entities.News;
+import com.example.kevin.parcial2.ModelsAndEntities.News;
 
 @Database(entities = {News.class}, version = 1, exportSchema = false)
 public abstract class AppRoomDatabase extends RoomDatabase {

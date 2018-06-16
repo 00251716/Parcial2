@@ -1,13 +1,16 @@
-package com.example.kevin.parcial2.Persistence;
+package com.example.kevin.parcial2.Data;
 
 import android.content.Context;
 
-import com.example.kevin.parcial2.Entities.User;
+import com.example.kevin.parcial2.ModelsAndEntities.User;
 
 public class SharedData {
 
     private static final String PREF_NAME = "APP_SETTINGS";
+
+    //Se utiliza para verificar si el usuario est� logeado en la LoginActivity
     private static final String KEY_IS_LOGGED_IN = "KEY_IS_LOGGED_IN";
+
     private static final String KEY_USER_ID = "KEY_USER_ID";
     private static final String KEY_USERNAME = "KEY_USERNAME";
     private static final String KEY_TOKEN = "KEY_TOKEN";

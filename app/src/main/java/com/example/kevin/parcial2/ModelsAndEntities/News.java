@@ -1,4 +1,4 @@
-package com.example.kevin.parcial2.Entities;
+package com.example.kevin.parcial2.ModelsAndEntities;
 
 //Esta clase sirve para almacenar la informaci�n de una noticia
 
