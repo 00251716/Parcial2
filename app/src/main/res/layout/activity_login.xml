@@ -9,7 +9,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:background="@color/colorAccent"
+    android:background="@drawable/background6"
     tools:context=".Activities.LoginActivity">
 
     <!-- Login progress -->
@@ -32,6 +32,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
+            <TextView
+                android:id="@id/title"
+                android:layout_marginBottom="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="GAME NEWS"
+                android:textSize="30dp" />
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"

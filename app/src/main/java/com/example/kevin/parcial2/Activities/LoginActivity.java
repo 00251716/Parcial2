@@ -1,6 +1,7 @@
 package com.example.kevin.parcial2.Activities;
 ;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -9,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.example.kevin.parcial2.GameNewsAPI.GamesService;
 import com.example.kevin.parcial2.Data.SharedData;
@@ -36,10 +38,11 @@ public class LoginActivity extends AppCompatActivity{
     //La contraseña del usuario
     private EditText mEditPassword;
 
+    private TextView title;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
 
         setContentView(R.layout.activity_login);
 
@@ -53,8 +56,15 @@ public class LoginActivity extends AppCompatActivity{
         //Referencia al EditText donde el usuario ingresa su username
         mEditUsername = findViewById(R.id.username);
 
+        Typeface custom_font = Typeface.createFromAsset(getAssets(),  "fonts/ARCADECLASSIC.TTF");
+
+        title = findViewById(R.id.title);
+
+        title.setTypeface(custom_font);
+
         //Referencia al EditText donde el usuario ingresa su password
         mEditPassword = findViewById(R.id.password);
+
 
         //Referencia al bot�n para iniciar sesi�n
         Button btnLogIn = findViewById(R.id.log_in_button);
