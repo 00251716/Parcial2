@@ -92,14 +92,5 @@ public class NewsRepository {
     public void updateFavorite(String newid, boolean fav){
         executors.diskIO().execute(()-> newsDao.updateFavorite(newid,fav));
     }
-
-    //TODO: complete this methods
-    private void deleteOldData(){
-
-    }
-
-    private boolean isFetchNeeded(){
-        return true;
-    }
-
+    
 }
