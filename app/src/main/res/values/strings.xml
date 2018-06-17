@@ -21,6 +21,7 @@
     <string name="prompt_username">Username</string>
     <string name="prompt_password">Password</string>
     <string name="action_sign_in">Log in</string>
+    <string name="action_log_out">Log out</string>
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>
@@ -28,5 +29,7 @@
     <string name="error_no_internet">The request can not be process. Check your internet connection</string>
     <string name="error_min_length">%1$s length must be at least %2$d characters</string>
     <string name="error_login_credentials">Username or password is incorrect.</string>
+
+    <!-- Strings por default para el recyclerview -->
 
 </resources>

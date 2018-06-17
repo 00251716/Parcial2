@@ -135,10 +135,6 @@ public class MainActivity extends AppCompatActivity
             // Handle the camera action
         } else if (id == R.id.nav_games) {
 
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_settings) {
-
         } else if (id == R.id.nav_favorites) {
             SharedData.logOutUser();
             finish();
