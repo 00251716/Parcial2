@@ -1,7 +1,9 @@
 package com.example.kevin.parcial2.Data;
 
 import android.content.Context;
+import android.content.Intent;
 
+import com.example.kevin.parcial2.Activities.LoginActivity;
 import com.example.kevin.parcial2.ModelsAndEntities.User;
 
 public class SharedData {
@@ -15,10 +17,13 @@ public class SharedData {
     private static final String KEY_USERNAME = "KEY_USERNAME";
     private static final String KEY_TOKEN = "KEY_TOKEN";
 
+    private static Context mContext;
+
     private static android.content.SharedPreferences preferences;
     private static android.content.SharedPreferences.Editor editor;
 
     public static void init(Context context) {
+        mContext = context;
         if (preferences == null) {
             preferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
             editor = preferences.edit();
@@ -63,4 +68,23 @@ public class SharedData {
         return preferences.getString(KEY_TOKEN, null);
     }
 
+    public static boolean checkLogin(){
+        if(!isLoggedIn()){
+            Intent i = new Intent(mContext, LoginActivity.class);
+
+            //Close all the activities
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            i.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+
+            mContext.startActivity(i);
+            return true;
+        }
+        return false;
+    }
+
+    public static void logOutUser(){
+        editor.clear();
+        editor.commit();
+        checkLogin();
+    }
 }

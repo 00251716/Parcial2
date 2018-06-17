@@ -56,12 +56,6 @@ public class LoginActivity extends AppCompatActivity{
         //Referencia al EditText donde el usuario ingresa su username
         mEditUsername = findViewById(R.id.username);
 
-        Typeface custom_font = Typeface.createFromAsset(getAssets(),  "fonts/ARCADECLASSIC.TTF");
-
-        title = findViewById(R.id.title);
-
-        title.setTypeface(custom_font);
-
         //Referencia al EditText donde el usuario ingresa su password
         mEditPassword = findViewById(R.id.password);
 
