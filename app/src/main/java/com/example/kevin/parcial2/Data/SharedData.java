@@ -52,9 +52,6 @@ public class SharedData {
         return preferences.getBoolean(KEY_IS_LOGGED_IN, false);
     }
 
-    public static boolean hasUserDetail() {
-        return !preferences.getString(KEY_USER_ID, "").isEmpty();
-    }
 
     public static void setUserDetail(User user) {
         editor.putString(KEY_USER_ID, user.getId());
@@ -62,9 +59,6 @@ public class SharedData {
         editor.commit();
     }
 
-    public static String getUserId() {
-        return  preferences.getString(KEY_USER_ID, "");
-    }
 
     public static String getUsername() {
         return preferences.getString(KEY_USERNAME, "");
@@ -84,7 +78,6 @@ public class SharedData {
         if(!isLoggedIn()){
             Intent i = new Intent(mContext, LoginActivity.class);
 
-            //Close all the activities
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             i.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
 

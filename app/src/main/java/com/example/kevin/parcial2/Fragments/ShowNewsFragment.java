@@ -106,9 +106,6 @@ public class ShowNewsFragment extends Fragment implements NewsListAdapter.onNews
         NetworkDataSource.getInstance(this.getContext(), AppExecutors.getInstance()).setFavorite(v,newid,newsRecycler);
     }
 
-    /**
-     * Called when a swipe gesture triggers a refresh.
-     */
     @Override
     public void onRefresh() {
         swipeRefreshLayout.setRefreshing(true);

@@ -35,9 +35,9 @@ public class NewsRepository {
         LiveData<ArrayList<News>> downloadedNews = networkDataSource.getCurrentNews();
         downloadedNews.observeForever(
                 news -> this.executors.diskIO().execute(() -> {
-                    Log.d(TAG, "DataRepository: truncating News table");
+                    Log.d(TAG, "GamesRepository: truncating News table");
                     newsDao.deleteAll();
-                    Log.d(TAG, "DataRepository: Inserting into database");
+                    Log.d(TAG, "GamesRepository: Inserting into database");
                     newsDao.insertNews(news);
 
                 })
@@ -46,7 +46,7 @@ public class NewsRepository {
         LiveData<String[]> favorites = networkDataSource.getCurrentFavs();
         favorites.observeForever(
                 favs -> this.executors.diskIO().execute(() ->{
-                    Log.d(TAG, "DataRepository: Updating favorite news");
+                    Log.d(TAG, "GamesRepository: Updating favorite news");
                     for (String fav:favs){
                         newsDao.updateFavorite(fav,true);
                     }
@@ -80,7 +80,6 @@ public class NewsRepository {
     // Database operations
 
     public LiveData<News> getNewById(String id){
-        //initializeData();
         return newsDao.getNewDetail(id);
     }
 
@@ -92,5 +91,5 @@ public class NewsRepository {
     public void updateFavorite(String newid, boolean fav){
         executors.diskIO().execute(()-> newsDao.updateFavorite(newid,fav));
     }
-    
+
 }
