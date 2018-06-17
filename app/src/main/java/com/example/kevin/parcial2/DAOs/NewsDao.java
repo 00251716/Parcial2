@@ -29,5 +29,8 @@ public interface NewsDao {
     @Query("DELETE FROM news")
     void deleteAll();
 
+    @Query("UPDATE news SET favorite = :favorite WHERE id LIKE :id")
+    void updateFavorite(String id, boolean favorite);
+
 
 }

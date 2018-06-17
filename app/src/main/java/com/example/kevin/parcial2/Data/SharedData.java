@@ -40,6 +40,17 @@ public class SharedData {
         return preferences.getString(key, defValue);
     }
 
+    public static void write(String key, boolean value) {
+        editor.putBoolean(key, value);
+        editor.commit();
+    }
+
+    public static void write(String key, String value) {
+        editor.putString(key, value);
+        editor.commit();
+    }
+
+
     public static boolean isLoggedIn() {
         return preferences.getBoolean(KEY_IS_LOGGED_IN, false);
     }

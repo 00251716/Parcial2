@@ -24,21 +24,34 @@ public class NewsRepository {
 
     private boolean initialized = false;
 
-    public NewsRepository(NewsDao newsDao,
-                          NetworkDataSource networkDataSource,
-                          AppExecutors executors) {
+    private NewsRepository(NewsDao newsDao,
+                           NetworkDataSource networkDataSource,
+                           AppExecutors executors) {
         this.newsDao = newsDao;
         this.networkDataSource = networkDataSource;
         this.executors = executors;
+
         LiveData<ArrayList<News>> downloadedNews = networkDataSource.getCurrentNews();
         downloadedNews.observeForever(
-                news -> executors.diskIO().execute(() -> {
-                    Log.d(TAG, "DataRepository: inserting into database");
+                news -> this.executors.diskIO().execute(() -> {
+                    Log.d(TAG, "DataRepository: truncating News table");
+                    newsDao.deleteAll();
+                    Log.d(TAG, "DataRepository: Inserting into database");
                     newsDao.insertNews(news);
+
+                })
+        );
+
+        LiveData<String[]> favorites = networkDataSource.getCurrentFavs();
+        favorites.observeForever(
+                favs -> this.executors.diskIO().execute(() ->{
+                    Log.d(TAG, "DataRepository: Updating favorite news");
+                    for (String fav:favs){
+                        newsDao.updateFavorite(fav,true);
+                    }
                 })
         );
     }
-
 
     public synchronized static NewsRepository getInstance(NewsDao newsDao,
                                                           NetworkDataSource networkDataSource,
@@ -58,54 +71,25 @@ public class NewsRepository {
      * */
     private synchronized void initializeData(){
         Log.d(TAG, "initializeData? "+(!initialized?"Yes":"No"));
-        if (initialized) return;
+        //if (initialized) return;
         initialized = true;
-        startFetchService();
+        networkDataSource.getUserDetails();
     }
 
     // Database operations
 
     public LiveData<News> getNewById(String id){
-        initializeData();
+        //initializeData();
         return newsDao.getNewDetail(id);
     }
 
-    public LiveData<List<News>> getNews(){
+    public LiveData<List<News>>getNews(){
         initializeData();
         return newsDao.getAll();
     }
 
-
-
-    private void deleteOldData(){
-
-    }
-
-    private boolean isFetchNeeded(){
-        return true;
-    }
-
-    private void startFetchService(){
-        networkDataSource.startFetchNewsService();
-    }
-
-    public void insert (News news) {
-        new insertAsyncTask(newsDao).execute(news);
-    }
-
-    private static class insertAsyncTask extends AsyncTask<News, Void, Void> {
-
-        private NewsDao mAsyncTaskDao;
-
-        insertAsyncTask(NewsDao dao) {
-            mAsyncTaskDao = dao;
-        }
-
-        @Override
-        protected Void doInBackground(final News... params) {
-            mAsyncTaskDao.insert(params[0]);
-            return null;
-        }
+    public void updateFavorite(String newid, boolean fav){
+        executors.diskIO().execute(()-> newsDao.updateFavorite(newid,fav));
     }
 
 }

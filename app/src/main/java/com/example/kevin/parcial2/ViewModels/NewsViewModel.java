@@ -10,20 +10,21 @@ import java.util.List;
 
 public class NewsViewModel extends ViewModel {
 
-    private final LiveData<List<News>> newsArrayList;
+    private LiveData<List<News>> newsArrayList;
 
-    private final NewsRepository newsRepository;
+    private final NewsRepository dataRepository;
 
     public NewsViewModel(NewsRepository repository){
-        newsRepository = repository;
-        newsArrayList = newsRepository.getNews();
+        dataRepository = repository;
+        newsArrayList = dataRepository.getNews();
     }
-
-
-    public void insert(News news) { newsRepository.insert(news); }
 
     public LiveData<List<News>> getLatestNews(){
         return newsArrayList;
+    }
+
+    public void refreshNews(){
+        newsArrayList = dataRepository.getNews();
     }
 
 

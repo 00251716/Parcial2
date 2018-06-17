@@ -21,9 +21,12 @@ public class SyncIntentService extends IntentService {
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
         Log.d(TAG, "onHandleIntent: Intent service started");
-        NetworkDataSource networkDataSource =
-                DependencyContainer.getNetworkDataSource(this.getApplicationContext());
-        networkDataSource.fetchNews();
+        if (intent != null) {
+            String[] favs = intent.getStringArrayExtra("favorites");
+            NetworkDataSource networkDataSource =
+                    DependencyContainer.getNetworkDataSource(this.getApplicationContext());
+            networkDataSource.fetchNews(favs);
+        }
     }
 
     @Override
@@ -31,5 +34,4 @@ public class SyncIntentService extends IntentService {
         super.onDestroy();
         Log.d(TAG, "onDestroy: Intent service finished");
     }
-
 }

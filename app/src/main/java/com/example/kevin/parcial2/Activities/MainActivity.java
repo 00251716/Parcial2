@@ -145,19 +145,6 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == NEW_NEWS_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
-            News news = new News(data.getStringExtra(NewsInfoActivity.EXTRA_REPLY));
-            mNewsViewModel.insert(news);
-        } else {
-            Toast.makeText(
-                    getApplicationContext(),
-                    R.string.empty_not_saved,
-                    Toast.LENGTH_LONG).show();
-        }
-    }
 
     //Método para cambiar entre fragmentos de acuerdo a la opción seleccionada en el navigation drawer
     public void setFragment(int position) {

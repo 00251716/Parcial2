@@ -16,7 +16,15 @@ import com.example.kevin.parcial2.Data.DependencyContainer;
 import com.example.kevin.parcial2.Data.SharedData;
 import com.example.kevin.parcial2.GameNewsAPI.GamesServiceInterface;
 import com.example.kevin.parcial2.ModelsAndEntities.News;
+import com.example.kevin.parcial2.ModelsAndEntities.User;
 import com.example.kevin.parcial2.R;
+import com.firebase.jobdispatcher.Constraint;
+import com.firebase.jobdispatcher.Driver;
+import com.firebase.jobdispatcher.FirebaseJobDispatcher;
+import com.firebase.jobdispatcher.GooglePlayDriver;
+import com.firebase.jobdispatcher.Job;
+import com.firebase.jobdispatcher.Lifetime;
+import com.firebase.jobdispatcher.Trigger;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -34,11 +42,15 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * Manages operations to perform with the API
+ * Provides the most recent downloaded data
+ * */
 public class NetworkDataSource {
 
     //Number of days we want API to return
     public static final int NUM_DAYS = 14;
-    private static final String TAG = "NetworkDataSorce";
+    private static final String TAG = "GN:NetworkDataSorce";
 
     //Setting intervals to do sync
     private static final int SYNC_INTERVAL_HOURS = 3;
@@ -53,11 +65,13 @@ public class NetworkDataSource {
     private final AppExecutors executors;
 
     private final MutableLiveData<ArrayList<News>> newsArray;
+    private final MutableLiveData<String[]> favorites;
 
     private NetworkDataSource(Context context, AppExecutors executors) {
         this.context = context;
         this.executors = executors;
         newsArray = new MutableLiveData<>();
+        favorites = new MutableLiveData<>();
     }
 
     /**
@@ -73,37 +87,118 @@ public class NetworkDataSource {
         return mInstance;
     }
 
-    public void startFetchNewsService() {
-        Intent intentToFetch = new Intent(context, SyncIntentService.class);
-        context.startService(intentToFetch);
-        Log.d(TAG, "startFetchNewsService: IntentService executed");
+
+    /**
+     * Do a recurring job service which fetches latest info
+     */
+    public void schedulePeriodicSync(){
+        Driver driver = new GooglePlayDriver(context);
+        FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(driver);
+
+        //Creating the Job periodically sync the app data
+        Job syncAppJob = dispatcher.newJobBuilder()
+                .setService(AppJobService.class)
+                .setTag(GAMENEWS_SYNC_TAG)
+                .setConstraints(Constraint.ON_ANY_NETWORK)
+                .setLifetime(Lifetime.FOREVER)
+                .setRecurring(true)
+                .setTrigger(Trigger.executionWindow(
+                        SYNC_INTERVAL_SECONDS,
+                        SYNC_INTERVAL_SECONDS + SYNC_FLEXTIME_SECONDS))
+                .setReplaceCurrent(true)
+                .build();
+        dispatcher.schedule(syncAppJob);
+        Log.d(TAG, "schedulePeriodicSync: Job scheduled and ready to sync");
     }
 
     public LiveData<ArrayList<News>> getCurrentNews(){
         return newsArray;
     }
 
-    public void fetchNews() {
+    public LiveData<String[]> getCurrentFavs(){
+        return favorites;
+    }
+
+    /**
+     * Starts an intent service to fetch the news.
+     */
+    public void startFetchNewsService(String[] favs) {
+        Intent intentToFetch = new Intent(context, SyncIntentService.class);
+        intentToFetch.putExtra("favorites",favs);
+        context.startService(intentToFetch);
+        Log.d(TAG, "startFetchNewsService: IntentService executed");
+    }
+
+    /**
+     * Get the latests news
+     */
+    public void fetchNews(String[] favs) {
         Log.d(TAG, "fetchNews: Starting a News fetch");
         executors.networkIO().execute(() -> {
 
             Call<ArrayList<News>> call = NetworkUtils.getClientInstanceAuth().getNewsList();
             call.enqueue(new Callback<ArrayList<News>>() {
                 @Override
-                public void onResponse(Call<ArrayList<News>> call, Response<ArrayList<News>> response) {
+                public void onResponse(@NonNull Call<ArrayList<News>> call,
+                                       @NonNull Response<ArrayList<News>> response) {
                     if(response.isSuccessful()){
                         newsArray.postValue(response.body());
+                        favorites.postValue(favs);
                         Log.d(TAG, "onResponse: News fetching successful!");
                     }
                 }
 
                 @Override
-                public void onFailure(Call<ArrayList<News>> call, Throwable t) {
+                public void onFailure(@NonNull Call<ArrayList<News>> call,
+                                      @NonNull Throwable t) {
                     Log.d(TAG, "onFailure: News fetching failed alv!");
                     t.printStackTrace();
                 }
             });
 
+        });
+    }
+
+    public void getUserDetails(){
+        Log.d(TAG, "getUserDetails: Getting user info");
+        if (!NetworkUtils.checkConectivity(context)){
+            Toast.makeText(context,
+                    context.getResources().getText(R.string.message_no_internet),
+                    Toast.LENGTH_LONG).show();
+        }
+        executors.networkIO().execute(()-> {
+            Call<User> call = NetworkUtils.getClientInstanceAuth().userDetail();
+
+            call.enqueue(new Callback<User>() {
+                @Override
+                public void onResponse(@NonNull Call<User> call,
+                                       @NonNull Response<User> response) {
+                    if (response.isSuccessful()){
+                        Log.d(TAG, "getUserDetail: onResponse: The response was successful");
+                        Log.d(TAG, "onResponse: old favs deleted");
+                        SharedData.write(SharedData.KEY_USER_ID, response.body().getId());
+                        startFetchNewsService(response.body().getFavoriteNews());
+                    } else {
+                        switch (response.code()){
+                            case 401:
+                                Toast.makeText(context,
+                                        context.getResources().getText(R.string.message_session_expired),
+                                        Toast.LENGTH_LONG).show();
+                                SharedData.logOutUser();
+                        }
+                        Log.d(TAG, "getUserDetail: onResponse: The response failed. code "+response.code());
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<User> call,@NonNull  Throwable t) {
+                    Toast.makeText(context,
+                            context.getResources().getText(R.string.message_net_failure),
+                            Toast.LENGTH_LONG).show();
+                    Log.d(TAG, "getUserDet: onFailure: the response failed : +"+t.getMessage());
+                    t.printStackTrace();
+                }
+            });
         });
     }
 
@@ -119,12 +214,12 @@ public class NetworkDataSource {
 
         executors.networkIO().execute(()->{
 
-            GamesServiceInterface favService = NetworkUtils.getClientInstanceAuth(gson);
+            GamesServiceInterface gamesService = NetworkUtils.getClientInstanceAuth(gson);
 
             if(icon.getTag().toString().equalsIgnoreCase("n")){
                 Log.d(TAG, "setFavorite: SHAREDPREF - userid:"+
                         SharedData.read(SharedData.KEY_USER_ID,"null"));
-                Call<String> response = dataService.addFavorite(
+                Call<String> response = gamesService.addFavorite(
                         SharedData.read(SharedData.KEY_USER_ID,"null"), newid);
                 response.enqueue(new Callback<String>() {
                     @Override
@@ -138,7 +233,7 @@ public class NetworkDataSource {
                                 if(data[1].equalsIgnoreCase("true")){
                                     DependencyContainer.getRepository(context).updateFavorite(newid,true);
                                     icon.setTag("y");
-                                    icon.setImageResource(R.drawable.ic_favorites);
+                                    icon.setImageResource(R.drawable.ic_star);
                                     Log.d(TAG, "onResponse: Favorite saved successfully");
                                     Snackbar.make(rootView,
                                             context.getResources().getString(R.string.message_fav_saved),
@@ -166,8 +261,8 @@ public class NetworkDataSource {
                     }
                 });
             } else {
-                Call<String> response = dataService.deleteFavorite(
-                        SharedData.read(SharedPreference.USER_ID,"null"), newid);
+                Call<String> response = gamesService.deleteFavorite(
+                        SharedData.read(SharedData.KEY_USER_ID,"null"), newid);
                 response.enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call,
@@ -180,7 +275,7 @@ public class NetworkDataSource {
 
                                 DependencyContainer.getRepository(context).updateFavorite(newid,false);
                                 icon.setTag("n");
-                                icon.setImageResource(R.drawable.ic_favorite_border);
+                                icon.setImageResource(R.drawable.ic_star_border);
                                 Snackbar.make(rootView,
                                         context.getResources().getString(R.string.message_fav_deleted),
                                         Snackbar.LENGTH_SHORT).show();
