@@ -16,16 +16,20 @@ import retrofit2.http.Path;
 
 public interface GamesServiceInterface {
 
-    @GET("/news")
-    Call<ArrayList<News>> getNewsList();
+    @FormUrlEncoded
+    @POST("/login")
+    Call<String> login(@Field("user") String user, @Field("password")String password);
 
-
-    @GET("/users/detail")
-    Call<User> userDetail();
 
     @FormUrlEncoded
     @POST("/login")
-    Call<Login> token(@Field("user") String username, @Field("password") String password);
+    Call<Login> token(@Field("user") String user, @Field("password")String password);
+
+    @GET("/news")
+    Call<ArrayList<News>> getNewsList();
+
+    @GET("/users/detail")
+    Call<User> getUserDetails();
 
     @POST("/users/{userid}/fav")
     @FormUrlEncoded
@@ -34,5 +38,4 @@ public interface GamesServiceInterface {
     @HTTP(method = "DELETE", path = "/users/{userid}/fav", hasBody = true)
     @FormUrlEncoded
     Call<String> deleteFavorite(@Path("userid") String userId, @Field("new") String newid);
-
 }

@@ -26,6 +26,6 @@ public class NewsViewModel extends ViewModel {
     public void refreshNews(){
         newsArrayList = dataRepository.getNews();
     }
-
-
 }
+
+

@@ -167,7 +167,7 @@ public class NetworkDataSource {
                     Toast.LENGTH_LONG).show();
         }
         executors.networkIO().execute(()-> {
-            Call<User> call = NetworkUtils.getClientInstanceAuth().userDetail();
+            Call<User> call = NetworkUtils.getClientInstanceAuth().getUserDetails();
 
             call.enqueue(new Callback<User>() {
                 @Override

@@ -51,7 +51,7 @@ public class ShowNewsFragment extends Fragment implements NewsListAdapter.onNews
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.news_fragment_layout, container, false);
 
-        newsRecycler = v.findViewById(R.id.recycler);
+        newsRecycler = v.findViewById(R.id.main_recycler);
         newsRecycler.setLayoutManager(new LinearLayoutManager(container.getContext()));
         newsRecycler.setHasFixedSize(true);
         newsAdapter = new NewsListAdapter(getContext(), newsArray,this);
@@ -89,9 +89,8 @@ public class ShowNewsFragment extends Fragment implements NewsListAdapter.onNews
     void loadList(List<News> news){
         newsArray.clear();
         newsArray.addAll(news);
-
         newsAdapter.notifyDataSetChanged();
-        Log.d(TAG, "loadList: Hiding swipe animation");
+        Log.d("MIR� AQUI", newsArray.size() + " ");
         swipeRefreshLayout.post(()->{ swipeRefreshLayout.setRefreshing(false); });
     }
 

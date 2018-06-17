@@ -19,6 +19,9 @@
             android:theme="@style/AppTheme.NoActionBar">
 
         </activity>
+        <service
+            android:name=".Network.SyncIntentService"
+            android:exported="false"/>
         <activity
             android:name=".Activities.LoginActivity"
             android:label="@string/title_activity_login"

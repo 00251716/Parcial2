@@ -12,8 +12,9 @@ import com.example.kevin.parcial2.Network.NetworkDataSource;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.support.constraint.Constraints.TAG;
+
 public class NewsRepository {
-    private static final String TAG = "GN:DataRepository";
 
     private static NewsRepository instance;
     private static final Object LOCK = new Object();
@@ -90,6 +91,15 @@ public class NewsRepository {
 
     public void updateFavorite(String newid, boolean fav){
         executors.diskIO().execute(()-> newsDao.updateFavorite(newid,fav));
+    }
+
+    //TODO: complete this methods
+    private void deleteOldData(){
+
+    }
+
+    private boolean isFetchNeeded(){
+        return true;
     }
 
 }

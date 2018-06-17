@@ -31,10 +31,6 @@ public class SharedData {
         }
     }
 
-    public static void logOut() {
-        editor.clear();
-        editor.commit();
-    }
 
     public static String read(String key, String defValue) {
         return preferences.getString(key, defValue);
