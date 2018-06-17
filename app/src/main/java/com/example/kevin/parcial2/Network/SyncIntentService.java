@@ -9,10 +9,10 @@ import com.example.kevin.parcial2.Data.DependencyContainer;
 
 public class SyncIntentService extends IntentService {
 
-    private static final String TAG = "GN:SyncIntentService";
+    private static final String TAG = "SyncIntentService";
 
     /**
-     * Creates an IntentService for fetch the data
+     * Crea un intent service para jalar los datos
      */
     public SyncIntentService() {
         super("SyncIntentService");
