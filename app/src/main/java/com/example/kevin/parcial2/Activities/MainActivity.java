@@ -36,10 +36,11 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private static final String TAG = "GN:MainActivity";
+    private static final String TAG = "MainActivity";
     private Fragment contentFragment;
     private FragmentManager fragmentManager;
     TextView lblUser, lblToken;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +69,11 @@ public class MainActivity extends AppCompatActivity
             setTitle(R.string.app_name);
             switchContent(newsFragment,"news");
         }
+
+
+        /*SharedPreferencesUtils.init(this);
+        if (SharedPreferencesUtils.hasUserDetail())
+            navTextUsername.setText(SharedPreferencesUtils.getUsername());*/
     }
 
     @Override
@@ -102,7 +108,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         lblUser = navigationView.getHeaderView(0).findViewById(R.id.usernameTextView);
-        lblUser.setText(SharedData.read(SharedData.KEY_USERNAME,null));
+        lblUser.setText(SharedData.read(SharedData.getUsername(),null));
     }
 
     public void navigate(){
@@ -169,6 +175,7 @@ public class MainActivity extends AppCompatActivity
 
         return super.onOptionsItemSelected(item);
     }
+
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override

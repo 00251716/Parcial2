@@ -99,13 +99,14 @@ public class LoginActivity extends AppCompatActivity{
                 if (response.isSuccessful() && !response.body().getToken().isEmpty()) {
                     SharedData.init(LoginActivity.this);
                     SharedData.setToken(response.body().getToken());
+                    SharedData.write(SharedData.KEY_USERNAME, username);
+                    SharedData.write(SharedData.KEY_PASSWORD, password);
                     startActivity(new Intent(LoginActivity.this, MainActivity.class));
                     finish();
                 } else {
                     try {
                         Gson gson = new Gson();
                         Login error = gson.fromJson(response.errorBody().string(), Login.class);
-                        //MessagesUtils.showErrorDialog(LoginActivity.this,error.getMessage(), null);
                         Snackbar.make(findViewById(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG)
                                 .show();
                     } catch (IOException e) {

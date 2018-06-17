@@ -16,6 +16,7 @@ public class SharedData {
     public static final String KEY_USER_ID = "KEY_USER_ID";
     public static final String KEY_USERNAME = "KEY_USERNAME";
     public static final String KEY_TOKEN = "KEY_TOKEN";
+    public static final String KEY_PASSWORD = "KEY_PASS";
 
     private static Context mContext;
 
