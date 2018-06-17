@@ -10,7 +10,7 @@ import android.widget.EditText;
 
 import com.example.kevin.parcial2.R;
 
-public class NewNewsActivity extends AppCompatActivity {
+public class NewsInfoActivity extends AppCompatActivity {
 
     public static final String EXTRA_REPLY = "com.example.android.wordlistsql.REPLY";
 

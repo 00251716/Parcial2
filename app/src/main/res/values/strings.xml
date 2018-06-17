@@ -30,6 +30,9 @@
     <string name="error_min_length">%1$s length must be at least %2$d characters</string>
     <string name="error_login_credentials">Username or password is incorrect.</string>
 
-    <!-- Strings por default para el recyclerview -->
+    <!-- Strings por default en cada cardview -->
+    <string name="cover_image">Cover Image</string>
+    <string name="no_title_available">No title available</string>
+    <string name="no_description_available">No description available</string>
 
 </resources>

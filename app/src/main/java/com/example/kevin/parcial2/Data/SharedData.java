@@ -13,9 +13,9 @@ public class SharedData {
     //Se utiliza para verificar si el usuario est� logeado en la LoginActivity
     private static final String KEY_IS_LOGGED_IN = "KEY_IS_LOGGED_IN";
 
-    private static final String KEY_USER_ID = "KEY_USER_ID";
-    private static final String KEY_USERNAME = "KEY_USERNAME";
-    private static final String KEY_TOKEN = "KEY_TOKEN";
+    public static final String KEY_USER_ID = "KEY_USER_ID";
+    public static final String KEY_USERNAME = "KEY_USERNAME";
+    public static final String KEY_TOKEN = "KEY_TOKEN";
 
     private static Context mContext;
 
@@ -34,6 +34,10 @@ public class SharedData {
     public static void logOut() {
         editor.clear();
         editor.commit();
+    }
+
+    public static String read(String key, String defValue) {
+        return preferences.getString(key, defValue);
     }
 
     public static boolean isLoggedIn() {

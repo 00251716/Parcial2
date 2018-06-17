@@ -14,9 +14,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.example.kevin.parcial2.Activities.AppExecutors;
+import com.example.kevin.parcial2.Activities.NewsInfoActivity;
 import com.example.kevin.parcial2.Adapters.NewsListAdapter;
 import com.example.kevin.parcial2.Data.DependencyContainer;
 import com.example.kevin.parcial2.ModelsAndEntities.News;
+import com.example.kevin.parcial2.Network.NetworkDataSource;
 import com.example.kevin.parcial2.R;
 import com.example.kevin.parcial2.ViewModels.NewsDetailViewModel;
 import com.example.kevin.parcial2.ViewModels.NewsViewModel;
@@ -25,7 +28,7 @@ import com.example.kevin.parcial2.ViewModels.NewsViewModelFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ShowNewsFragment extends Fragment {
+public class ShowNewsFragment extends Fragment implements NewsListAdapter.onNewsClickHandler, SwipeRefreshLayout.OnRefreshListener{
 
     RecyclerView newsRecycler;
     NewsListAdapter newsAdapter;
@@ -34,7 +37,7 @@ public class ShowNewsFragment extends Fragment {
     NewsViewModel newsViewModel;
     NewsDetailViewModel model;
 
-    private static final String TAG = "GN:NewsFragment";
+    private static final String TAG = "ShowNewsFragment";
 
     public ShowNewsFragment() {
     }
@@ -52,7 +55,7 @@ public class ShowNewsFragment extends Fragment {
         newsRecycler = v.findViewById(R.id.news_recycler);
         newsRecycler.setLayoutManager(new LinearLayoutManager(container.getContext()));
         newsRecycler.setHasFixedSize(true);
-       /* newsAdapter = new NewsListAdapter(getContext(), newsArray,this);
+        newsAdapter = new NewsListAdapter(getContext(), newsArray,this);
         newsRecycler.setAdapter(newsAdapter);
 
         swipeRefreshLayout = v.findViewById(R.id.main_swiperefresh);
@@ -95,7 +98,7 @@ public class ShowNewsFragment extends Fragment {
 
     @Override
     public void onNewsClick(News mNew) {
-        Intent intent = new Intent(getContext(), NewsDetailActivity.class);
+        Intent intent = new Intent(getContext(), NewsInfoActivity.class);
         intent.putExtra("id",mNew.getId());
         startActivity(intent);
     }

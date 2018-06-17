@@ -4,12 +4,29 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.example.kevin.parcial2.Activities.AppExecutors;
+import com.example.kevin.parcial2.Data.DependencyContainer;
+import com.example.kevin.parcial2.Data.SharedData;
+import com.example.kevin.parcial2.GameNewsAPI.GamesServiceInterface;
 import com.example.kevin.parcial2.ModelsAndEntities.News;
+import com.example.kevin.parcial2.R;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
@@ -21,7 +38,7 @@ public class NetworkDataSource {
 
     //Number of days we want API to return
     public static final int NUM_DAYS = 14;
-    private static final String TAG = "GN:NetworkDataSorce";
+    private static final String TAG = "NetworkDataSorce";
 
     //Setting intervals to do sync
     private static final int SYNC_INTERVAL_HOURS = 3;
@@ -66,9 +83,6 @@ public class NetworkDataSource {
         return newsArray;
     }
 
-    /**
-     * Get the latests news
-     */
     public void fetchNews() {
         Log.d(TAG, "fetchNews: Starting a News fetch");
         executors.networkIO().execute(() -> {
@@ -91,5 +105,138 @@ public class NetworkDataSource {
             });
 
         });
+    }
+
+    public void setFavorite(ImageView v, String newid, View rootView){
+
+        Log.d(TAG, "onNewsChecked: FAV CLICKED");
+        ImageView icon = v.findViewById(R.id.btn_favorite);
+
+        Gson gson = new GsonBuilder().registerTypeAdapter(
+                String.class,
+                new MessageDeserializer()
+        ).create();
+
+        executors.networkIO().execute(()->{
+
+            GamesServiceInterface favService = NetworkUtils.getClientInstanceAuth(gson);
+
+            if(icon.getTag().toString().equalsIgnoreCase("n")){
+                Log.d(TAG, "setFavorite: SHAREDPREF - userid:"+
+                        SharedData.read(SharedData.KEY_USER_ID,"null"));
+                Call<String> response = dataService.addFavorite(
+                        SharedData.read(SharedData.KEY_USER_ID,"null"), newid);
+                response.enqueue(new Callback<String>() {
+                    @Override
+                    public void onResponse(@NonNull Call<String> call,
+                                           @NonNull Response<String> response) {
+                        if (response.isSuccessful()){
+                            Log.d(TAG, "onResponse: Response successful");
+
+                            String[] data = response.body().split(":");
+                            if (data[0].equalsIgnoreCase("success")){
+                                if(data[1].equalsIgnoreCase("true")){
+                                    DependencyContainer.getRepository(context).updateFavorite(newid,true);
+                                    icon.setTag("y");
+                                    icon.setImageResource(R.drawable.ic_favorites);
+                                    Log.d(TAG, "onResponse: Favorite saved successfully");
+                                    Snackbar.make(rootView,
+                                            context.getResources().getString(R.string.message_fav_saved),
+                                            Snackbar.LENGTH_SHORT).show();
+                                } else if(data[1].equalsIgnoreCase("false")){
+                                    Log.d(TAG, "onResponse: Favorite was not saved");
+                                    Log.d(TAG, "onResponse:"+response.message());
+                                    Log.d(TAG, "onResponse:"+response.code());
+                                }
+                            }
+                        } else {
+                            Snackbar.make(rootView,
+                                    context.getResources().getString(R.string.message_net_failure),
+                                    Snackbar.LENGTH_SHORT).show();
+                            Log.d(TAG, "onResponse: Response failed alv - code :"+response.code());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<String> call,@NonNull  Throwable t) {
+                        Snackbar.make(rootView,
+                                context.getResources().getString(R.string.message_net_failure),
+                                Snackbar.LENGTH_SHORT).show();
+                        t.printStackTrace();
+                    }
+                });
+            } else {
+                Call<String> response = dataService.deleteFavorite(
+                        SharedData.read(SharedPreference.USER_ID,"null"), newid);
+                response.enqueue(new Callback<String>() {
+                    @Override
+                    public void onResponse(@NonNull Call<String> call,
+                                           @NonNull Response<String> response) {
+                        if (response.isSuccessful()){
+                            Log.d(TAG, "onResponse: Response successful");
+                            String[] data = response.body().split(":");
+
+                            if (data[0].equalsIgnoreCase("message")){
+
+                                DependencyContainer.getRepository(context).updateFavorite(newid,false);
+                                icon.setTag("n");
+                                icon.setImageResource(R.drawable.ic_favorite_border);
+                                Snackbar.make(rootView,
+                                        context.getResources().getString(R.string.message_fav_deleted),
+                                        Snackbar.LENGTH_SHORT).show();
+
+                                Log.d(TAG, "onResponse: Favorite deleted successfully");
+
+                            } else if(data[0].equals("success")) {
+                                if (data[1].equals("false")){
+                                    Snackbar.make(rootView,
+                                            context.getResources().getString(R.string.message_fav_deleted),
+                                            Snackbar.LENGTH_SHORT).show();
+
+                                    Log.d(TAG, "onResponse: Favorite was not deleted");
+                                    Log.d(TAG, "onResponse:"+response.message());
+
+                                    Log.d(TAG, "onResponse:"+response.code());
+                                }
+                            }
+                        } else {
+                            Log.d(TAG, "onResponse: Response failed alv - code :"+response.code());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<String> call,@NonNull  Throwable t) {
+                        Toast.makeText(context,
+                                context.getResources().getText(R.string.message_net_failure),
+                                Toast.LENGTH_LONG).show();
+                        Log.d(TAG, "getUserDet: onFailure: the response failed : +"+t.getMessage());
+                        t.printStackTrace();
+                    }
+                });
+            }
+        });
+
+    }
+
+    public class MessageDeserializer implements JsonDeserializer<String> {
+        private static final String TAG = "MessageDeserializer";
+        @Override
+        public String deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            JsonObject logininfo = json.getAsJsonObject();
+            if(logininfo != null){
+                Log.d(TAG, "deserialize: login info correct");
+                if(logininfo.has("token"))
+                    return "token:"+logininfo.get("token").getAsString();
+                else if(logininfo.has("success")){
+                    Log.d(TAG, "deserialize: has member success");
+                    return "success:"+logininfo.get("success").getAsString();
+                }
+                else
+                    return "message:"+logininfo.get("message").getAsString();
+
+            } else
+                return "message: Operation failed. Please try again later";
+
+        }
     }
 }

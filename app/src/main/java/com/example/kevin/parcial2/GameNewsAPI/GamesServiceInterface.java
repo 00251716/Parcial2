@@ -10,7 +10,9 @@ import retrofit2.Call;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
+import retrofit2.http.HTTP;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
 
 public interface GamesServiceInterface {
 
@@ -24,5 +26,13 @@ public interface GamesServiceInterface {
     @FormUrlEncoded
     @POST("/login")
     Call<Login> token(@Field("user") String username, @Field("password") String password);
+
+    @POST("/users/{userid}/fav")
+    @FormUrlEncoded
+    Call<String> addFavorite(@Path("userid") String userId, @Field("new")String newid);
+
+    @HTTP(method = "DELETE", path = "/users/{userid}/fav", hasBody = true)
+    @FormUrlEncoded
+    Call<String> deleteFavorite(@Path("userid") String userId, @Field("new") String newid);
 
 }

@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, NewNewsActivity.class);
+                Intent intent = new Intent(MainActivity.this, NewsInfoActivity.class);
                 startActivityForResult(intent, NEW_NEWS_ACTIVITY_REQUEST_CODE);
             }
         });
@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == NEW_NEWS_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
-            News news = new News(data.getStringExtra(NewNewsActivity.EXTRA_REPLY));
+            News news = new News(data.getStringExtra(NewsInfoActivity.EXTRA_REPLY));
             mNewsViewModel.insert(news);
         } else {
             Toast.makeText(

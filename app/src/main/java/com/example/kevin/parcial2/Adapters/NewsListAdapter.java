@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.example.kevin.parcial2.ModelsAndEntities.News;
 import com.example.kevin.parcial2.R;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -57,7 +58,7 @@ public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.NewsVi
     @NonNull
     @Override
     public NewsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.cardview_news,parent,false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.cardview,parent,false);
         return (new NewsViewHolder(v));
     }
 
@@ -71,8 +72,8 @@ public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.NewsVi
             holder.txtTitle.setText(context.getResources().getString(R.string.no_title_available));
 
 
-        if(_new.getDescription()!=null)
-            holder.txtSubtitle.setText(_new.getDescription().trim());
+        if(_new.getBody()!=null)
+            holder.txtSubtitle.setText(_new.getBody().trim());
         else
             holder.txtSubtitle.setText(context.getResources().getString(R.string.no_description_available));
 
@@ -85,10 +86,10 @@ public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.NewsVi
             holder.imgPicture.setImageResource(R.drawable.no_image);
 
         if(_new.isFavorite()){
-            holder.btnFav.setImageResource(R.drawable.ic_favorites);
+            holder.btnFav.setImageResource(R.drawable.ic_star);
             holder.btnFav.setTag("y");
         } else {
-            holder.btnFav.setImageResource(R.drawable.ic_favorite_border);
+            holder.btnFav.setImageResource(R.drawable.ic_star_border);
             holder.btnFav.setTag("n");
         }
 
