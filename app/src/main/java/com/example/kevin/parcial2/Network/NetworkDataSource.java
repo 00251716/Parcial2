@@ -48,11 +48,8 @@ import retrofit2.Response;
  * */
 public class NetworkDataSource {
 
-    //Number of days we want API to return
-    public static final int NUM_DAYS = 14;
-    private static final String TAG = "GN:NetworkDataSorce";
+    private static final String TAG = "NetworkDataSorce";
 
-    //Setting intervals to do sync
     private static final int SYNC_INTERVAL_HOURS = 3;
     private static final int SYNC_INTERVAL_SECONDS = (int) TimeUnit.HOURS.toSeconds(SYNC_INTERVAL_HOURS);
     private static final int SYNC_FLEXTIME_SECONDS = SYNC_INTERVAL_SECONDS / 3;
@@ -75,7 +72,7 @@ public class NetworkDataSource {
     }
 
     /**
-     * Get the class singleton
+     * Obtener la instancia
      */
     public static NetworkDataSource getInstance(Context context, AppExecutors executors){
         Log.d(TAG, "Providing NetworkDataSource");
@@ -88,29 +85,6 @@ public class NetworkDataSource {
     }
 
 
-    /**
-     * Do a recurring job service which fetches latest info
-     */
-    public void schedulePeriodicSync(){
-        Driver driver = new GooglePlayDriver(context);
-        FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(driver);
-
-        //Creating the Job periodically sync the app data
-        Job syncAppJob = dispatcher.newJobBuilder()
-                .setService(AppJobService.class)
-                .setTag(GAMENEWS_SYNC_TAG)
-                .setConstraints(Constraint.ON_ANY_NETWORK)
-                .setLifetime(Lifetime.FOREVER)
-                .setRecurring(true)
-                .setTrigger(Trigger.executionWindow(
-                        SYNC_INTERVAL_SECONDS,
-                        SYNC_INTERVAL_SECONDS + SYNC_FLEXTIME_SECONDS))
-                .setReplaceCurrent(true)
-                .build();
-        dispatcher.schedule(syncAppJob);
-        Log.d(TAG, "schedulePeriodicSync: Job scheduled and ready to sync");
-    }
-
     public LiveData<ArrayList<News>> getCurrentNews(){
         return newsArray;
     }
@@ -120,7 +94,7 @@ public class NetworkDataSource {
     }
 
     /**
-     * Starts an intent service to fetch the news.
+     * Comienza un intent service para jalar las noticias
      */
     public void startFetchNewsService(String[] favs) {
         Intent intentToFetch = new Intent(context, SyncIntentService.class);
@@ -130,7 +104,7 @@ public class NetworkDataSource {
     }
 
     /**
-     * Get the latests news
+     * Obtener las �ltimas noticias
      */
     public void fetchNews(String[] favs) {
         Log.d(TAG, "fetchNews: Starting a News fetch");
