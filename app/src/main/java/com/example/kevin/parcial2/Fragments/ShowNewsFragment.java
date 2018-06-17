@@ -35,7 +35,6 @@ public class ShowNewsFragment extends Fragment implements NewsListAdapter.onNews
     SwipeRefreshLayout swipeRefreshLayout;
     List<News> newsArray = new ArrayList<>();
     NewsViewModel newsViewModel;
-    NewsDetailViewModel model;
 
     private static final String TAG = "ShowNewsFragment";
 
@@ -52,7 +51,7 @@ public class ShowNewsFragment extends Fragment implements NewsListAdapter.onNews
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.news_fragment_layout, container, false);
 
-        newsRecycler = v.findViewById(R.id.news_recycler);
+        newsRecycler = v.findViewById(R.id.recycler);
         newsRecycler.setLayoutManager(new LinearLayoutManager(container.getContext()));
         newsRecycler.setHasFixedSize(true);
         newsAdapter = new NewsListAdapter(getContext(), newsArray,this);
@@ -60,7 +59,7 @@ public class ShowNewsFragment extends Fragment implements NewsListAdapter.onNews
 
         swipeRefreshLayout = v.findViewById(R.id.main_swiperefresh);
         swipeRefreshLayout.setOnRefreshListener(this);
-        swipeRefreshLayout.setColorSchemeResources(R.color.colorDivider, R.color.colorAccent);
+        swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimaryDark, R.color.colorAccent);
         swipeRefreshLayout.post(()->{ swipeRefreshLayout.setRefreshing(true); });
         Log.d(TAG, "onCreateView: Activating swipe animation");
         return v;

@@ -3,6 +3,7 @@ package com.example.kevin.parcial2.Activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
@@ -40,6 +41,8 @@ public class MainActivity extends AppCompatActivity
     static String token;
     private NavigationView navigationView;
     private TextView navHeaderUsername;
+    private Fragment contentFragment;
+    private FragmentManager fragmentManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,10 +83,18 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
-        if(savedInstanceState == null){
-            setFragment(0);
-            //getIntent().getStringExtra("TOKEN_OBTAINED");
+        fragmentManager = getSupportFragmentManager();
+        if (savedInstanceState != null){
+            if (savedInstanceState.containsKey("content")){
+                String content = savedInstanceState.getString("content");
+                if (content.equals("news") && fragmentManager.findFragmentByTag("news")!=null){
+                    contentFragment = fragmentManager.findFragmentByTag("news");
+                }
+            }
+        } else {
+            ShowNewsFragment newsFragment = new ShowNewsFragment();
+            setTitle(R.string.app_name);
+            switchContent(newsFragment,"news");
         }
 
 
@@ -146,21 +157,20 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    //Método para cambiar entre fragmentos de acuerdo a la opción seleccionada en el navigation drawer
-    public void setFragment(int position) {
-        FragmentManager fragmentManager;
-        FragmentTransaction fragmentTransaction;
+    public void switchContent(Fragment fragment, String tag) {
+        //while (fragmentManager.popBackStackImmediate());
 
-        switch (position) {
-            case 0:
-                fragmentManager = getSupportFragmentManager();
-                fragmentTransaction = fragmentManager.beginTransaction();
-                ShowNewsFragment showFragment = new ShowNewsFragment();
-                fragmentTransaction.replace(R.id.fragment, showFragment);
-                fragmentTransaction.commit();
-                break;
+        if (fragment != null){
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            //transaction.setCustomAnimations(R.anim.slide_in_down, R.anim.slide_out_up,
+            //      R.anim.slide_in_down, R.anim.slide_out_up);
+            transaction.replace(R.id.main_container, fragment, tag);
 
-
+            if(!(fragment instanceof ShowNewsFragment)){
+                transaction.addToBackStack(tag);
+            }
+            transaction.commit();
+            contentFragment = fragment;
         }
     }
 
